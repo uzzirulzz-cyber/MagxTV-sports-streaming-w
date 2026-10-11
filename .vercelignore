@@ -1,0 +1,5 @@
+shots/
+*.zip
+*.log
+node_modules/
+.git/
