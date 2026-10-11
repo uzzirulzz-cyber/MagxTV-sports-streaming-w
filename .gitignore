@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# secrets — provider credentials and tokens must never be committed
+.env
+.env.*
+!.env.example
+*.secret
+secrets.json
+
+# build output and release artefacts
+dist/
+build/
+out/
+*.zip
+
+# screenshots / logs / runtime state
+shots/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# editors
+.vscode/
+.idea/
