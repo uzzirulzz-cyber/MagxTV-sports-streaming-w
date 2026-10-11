@@ -166,3 +166,44 @@ third-party secrets.
 | `switching to raw MPEG-TS` | The channel has no HLS playlist — mpegts.js takes over automatically |
 | `Session expired` | The 6-hour server session lapsed — reconnect |
 | Channel stalls | Often the provider's simultaneous-connection cap, not the app |
+
+---
+
+## 9. Admin → Broadcast (Xtream provider control)
+
+Sign in as an administrator and open **Admin → Broadcast**. This is where the operator
+obtains, fetches and loads the live provider that the whole site broadcasts:
+
+1. **Host / Username / Password** — an Xtream-Codes compatible `player_api.php` endpoint.
+   `http://` is fine, because playback is relayed by this server.
+2. **Test connection** — verifies the credentials against the panel *without* saving, and
+   reports subscription status, days remaining, expiry and the connection cap.
+3. **Obtain & save broadcast** — re-verifies, then stores the provider **server-side**
+   (`provider_config` in PostgreSQL, or the API process's memory when no database is set).
+   The password is returned to the panel only as a mask (`••••••`) plus its length; leaving
+   the field blank keeps the stored secret, so an operator never has to retype it.
+4. **Fetch & load channels** — pulls `get_live_categories` + `get_live_streams`, shows the
+   real group names with per-category counts, and loads up to 2,000 channels (first 300 shown,
+   searchable). **Probe** on any channel opens its playlist through the relay and reports
+   HTTP status, whether it is HLS or raw MPEG-TS, variant and segment counts.
+5. **Disconnect provider** — deletes the stored configuration.
+
+Once configured, the header strip on every page reads **LIVE PROVIDER CONNECTED**, and
+signed-in viewers get the roster at **`/channels`** (nav → *Channels*). Viewers receive a
+30-minute playback grant that contains no credentials: the relay looks the provider up from
+the server-side configuration on each request, so rotating the provider invalidates old grants.
+
+```
+GET    /api/admin/provider            current provider (password masked)      role: admin
+POST   /api/admin/provider/test       verify without saving                    role: admin
+POST   /api/admin/provider/connect    obtain → verify → save                  role: admin
+DELETE /api/admin/provider            remove the stored provider               role: admin
+GET    /api/admin/provider/channels   fetch & load channels + categories       role: admin
+GET    /api/admin/provider/probe/:id  what the panel actually serves for a channel
+GET    /api/broadcast/catalog         viewer roster (signed in)
+POST   /api/broadcast/token           30-minute playback grant (signed in)
+```
+
+> **Security**: the provider password is stored in plain text so the panel can reconnect
+> unattended. Encrypt it at rest or move it to a secrets manager before production, and keep
+> database access restricted. Credentials entered here are **yours**; the repository ships none.

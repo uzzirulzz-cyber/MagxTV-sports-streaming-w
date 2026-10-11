@@ -35,6 +35,14 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 CREATE INDEX IF NOT EXISTS notifications_user_idx ON notifications (user_id, created_at DESC);
 
+CREATE TABLE IF NOT EXISTS provider_config (
+  id         INTEGER PRIMARY KEY CHECK (id = 1),
+  host       TEXT NOT NULL,
+  username   TEXT NOT NULL,
+  password   TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS stream_overrides (
   match_id   TEXT PRIMARY KEY,
   label      TEXT NOT NULL,

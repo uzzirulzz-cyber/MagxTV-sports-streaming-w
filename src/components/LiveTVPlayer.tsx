@@ -2,12 +2,12 @@
    HLS when the panel offers an .m3u8 playlist, otherwise raw MPEG-TS via mpegts.js. */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type Hls from 'hls.js';
-import type { LiveChannel, LiveSession } from '../lib/liveProvider';
+import type { LiveChannel, PlaybackSession } from '../lib/liveProvider';
 import { hlsUrl, tsUrl } from '../lib/liveProvider';
 
 type Mode = 'idle' | 'probing' | 'hls' | 'ts' | 'error' | 'unauthorised';
 
-export default function LiveTVPlayer({ session, channel }: { session: LiveSession; channel: LiveChannel }) {
+export default function LiveTVPlayer({ session, channel }: { session: PlaybackSession; channel: LiveChannel }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const mpRef = useRef<any>(null);

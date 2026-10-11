@@ -2,9 +2,11 @@
    Credentials are supplied by the operator at runtime, held only in this
    process's memory behind an opaque token, and never written to disk. */
 import crypto from 'node:crypto';
+import { getConfigSync } from './providerConfig';
 
 export interface Creds { host: string; username: string; password: string }
-interface Entry { creds: Creds; expires: number }
+type Kind = 'session' | 'broadcast';
+interface Entry { kind: Kind; creds?: Creds; userId?: string; expires: number }
 
 const TOKENS = new Map<string, Entry>();
 const TTL_MS = 6 * 60 * 60 * 1000;
@@ -20,11 +22,24 @@ export function normaliseHost(raw: unknown): string {
   return u.origin;
 }
 
-export function issueToken(creds: Creds): string {
+const store = (entry: Entry): string => {
   const t = crypto.randomBytes(24).toString('hex');
   if (TOKENS.size >= MAX_TOKENS) { const oldest = TOKENS.keys().next().value; if (oldest) TOKENS.delete(oldest); }
-  TOKENS.set(t, { creds, expires: Date.now() + TTL_MS });
+  TOKENS.set(t, entry);
   return t;
+};
+
+/** A viewer's own provider session (credentials the viewer typed in). */
+export function issueToken(creds: Creds): string {
+  return store({ kind: 'session', creds, expires: Date.now() + TTL_MS });
+}
+
+/* A short-lived playback grant for the administrator-configured broadcast.
+   It stores no credentials: the provider is looked up when the grant is used,
+   so rotating the provider immediately invalidates old grants' usefulness. */
+const PLAYBACK_TTL_MS = 30 * 60 * 1000;
+export function issueBroadcastToken(userId: string): string {
+  return store({ kind: 'broadcast', userId, expires: Date.now() + PLAYBACK_TTL_MS });
 }
 export function readToken(t: unknown): Creds | null {
   const key = String(t ?? '');
@@ -32,7 +47,17 @@ export function readToken(t: unknown): Creds | null {
   const e = TOKENS.get(key);
   if (!e) return null;
   if (e.expires < Date.now()) { TOKENS.delete(key); return null; }
-  return e.creds;
+  if (e.kind === 'broadcast') {
+    const c = getConfigSync();
+    return c ? { host: c.host, username: c.username, password: c.password } : null;
+  }
+  return e.creds ?? null;
+}
+
+/** True when the token belongs to the admin-configured broadcast. */
+export function isBroadcastToken(t: unknown): boolean {
+  const e = TOKENS.get(String(t ?? ''));
+  return Boolean(e && e.kind === 'broadcast' && e.expires > Date.now());
 }
 export function dropToken(t: unknown): void { TOKENS.delete(String(t ?? '')); }
 export function activeTokens(): number { return TOKENS.size; }

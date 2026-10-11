@@ -5,13 +5,14 @@ import { Empty, SectionHead } from '../components/common';
 import * as api from '../lib/api';
 import type { AdminUser } from '../lib/api';
 import { CATEGORY_DEFS, SPORTS } from '../lib/catalog';
+import AdminBroadcast from '../components/AdminBroadcast';
 import { isLiveNow } from '../lib/format';
 import type { SportId } from '../lib/types';
 
 export default function Admin() {
   const { user, catalog, status, favorites, notifications, toast } = useApp();
   const [users, setUsers] = useState<AdminUser[]>([]);
-  const [tab, setTab] = useState<'overview' | 'users' | 'catalogue' | 'streams'>('overview');
+  const [tab, setTab] = useState<'overview' | 'users' | 'catalogue' | 'broadcast' | 'streams'>('overview');
   const [busy, setBusy] = useState('');
   const [q, setQ] = useState('');
   const [sport, setSport] = useState<SportId | 'all'>('all');
@@ -54,7 +55,7 @@ export default function Admin() {
         action={<span className={`pill ${status.demo ? 'pill-lime' : 'pill-cyan'}`}>{status.demo ? 'DEMO PROVIDER' : `PROVIDER: ${status.provider.toUpperCase()}`}</span>} />
 
       <div className="tabs" style={{ marginBottom: 22 }}>
-        {(['overview', 'users', 'catalogue', 'streams'] as const).map((t) => (
+        {(['overview', 'users', 'catalogue', 'broadcast', 'streams'] as const).map((t) => (
           <button key={t} className={tab === t ? 'on' : ''} onClick={() => setTab(t)}>{t.charAt(0).toUpperCase() + t.slice(1)}</button>
         ))}
       </div>
@@ -197,6 +198,7 @@ export default function Admin() {
           </div>
         </>
       )}
+      {tab === 'broadcast' && <AdminBroadcast />}
     </div>
   );
 }

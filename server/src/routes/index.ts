@@ -5,6 +5,7 @@ import { loadCatalog } from '../providers';
 import { PROVIDER_STATUS } from '../providers/state';
 import * as repo from '../repo';
 import liveRouter from './live';
+import { adminProvider, broadcast } from './broadcast';
 import { dbHealth } from '../db';
 import type { Plan, Role } from '../types';
 import { DEMO_STREAMS } from '../../../src/data/streams';
@@ -13,6 +14,10 @@ const router = Router();
 
 /* Real live-provider integration (runtime credentials, never persisted). */
 router.use('/live', liveRouter);
+
+/* Administrator control of the broadcast provider, and the viewer catalogue. */
+router.use('/admin/provider', adminProvider);
+router.use('/broadcast', broadcast);
 const wrap = (fn: (req: AuthedRequest, res: import('express').Response) => Promise<unknown>) =>
   (req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) =>
     fn(req as AuthedRequest, res).catch(next);

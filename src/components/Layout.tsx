@@ -14,6 +14,7 @@ const NAV = [
   { to: '/tennis', label: 'Tennis' },
   { to: '/motorsports', label: 'Motorsports' },
   { to: '/highlights', label: 'Highlights' },
+  { to: '/channels', label: 'Channels' },
   { to: '/connect', label: 'Live TV' },
   { to: '/schedule', label: 'Schedule' }
 ];

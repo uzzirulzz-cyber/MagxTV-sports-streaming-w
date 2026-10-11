@@ -13,6 +13,10 @@ export interface LiveAccount {
   createdAt: string | null; serverProtocol: string | null; timezone: string | null; url: string | null;
 }
 export interface LiveSession { host: string; username: string; password: string; token: string; account: LiveAccount; at: string }
+/** Anything that can be played back: a viewer's own session, or the short-lived
+    grant handed to a viewer of the operator's broadcast. Only a token is needed. */
+export interface PlaybackSession { token: string; host?: string }
+
 export interface LiveCategory { id: string; name: string }
 export interface LiveChannel { id: string; name: string; icon: string; categoryId: string; epgChannelId: string | null }
 
@@ -54,8 +58,8 @@ export async function disconnectProvider(s: LiveSession | null): Promise<void> {
 
 /* Same-origin relay URLs — the browser never contacts the provider directly,
    which is what avoids CORS and http-on-https mixed content. */
-export const hlsUrl = (s: LiveSession, id: string) => `/api/live/hls/${encodeURIComponent(id)}.m3u8?t=${encodeURIComponent(s.token)}`;
-export const tsUrl = (s: LiveSession, id: string) => `/api/live/ts/${encodeURIComponent(id)}.ts?t=${encodeURIComponent(s.token)}`;
+export const hlsUrl = (s: PlaybackSession, id: string) => `/api/live/hls/${encodeURIComponent(id)}.m3u8?t=${encodeURIComponent(s.token)}`;
+export const tsUrl = (s: PlaybackSession, id: string) => `/api/live/ts/${encodeURIComponent(id)}.ts?t=${encodeURIComponent(s.token)}`;
 export const channelCount = (s: LiveSession | null) => Boolean(s);
 
 export function useProviderSession() {

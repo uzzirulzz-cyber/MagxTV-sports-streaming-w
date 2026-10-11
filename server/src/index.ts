@@ -9,6 +9,7 @@ import { migrate } from './migrate';
 import routes from './routes';
 import { loadCatalog } from './providers';
 import { PROVIDER_STATUS } from './providers/state';
+import { getConfigSync, refresh } from './providerConfig';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -27,6 +28,7 @@ app.get(/^\/(?!api).*/, (_req, res) => { res.sendFile(path.join(dist, 'index.htm
 async function main() {
   await migrate();
   await initStore();
+  await refresh();
   const { status } = await loadCatalog();
   Object.assign(PROVIDER_STATUS, status);
   const db = await dbHealth();

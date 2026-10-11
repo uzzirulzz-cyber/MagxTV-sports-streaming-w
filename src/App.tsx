@@ -13,6 +13,7 @@ import Search from './pages/Search';
 import Favorites from './pages/Favorites';
 import Credits from './pages/Credits';
 import Connect from './pages/Connect';
+import Channels from './pages/Channels';
 import NotFound from './pages/NotFound';
 
 export default function App() {
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/login" element={<Login />} />
         <Route path="/connect" element={<Connect />} />
+        <Route path="/channels" element={<Channels />} />
         <Route path="/credits" element={<Credits />} />
         <Route path="*" element={<NotFound />} />
       </Route>
