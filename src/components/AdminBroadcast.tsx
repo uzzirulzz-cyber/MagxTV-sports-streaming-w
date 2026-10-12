@@ -6,6 +6,7 @@ import {
   adminChannels, connectProvider, disconnectProvider, getProvider, probeChannel, testProvider,
   type BroadcastCategory, type BroadcastChannel, type ProbeResult, type ProviderAccount, type ProviderPublic
 } from '../lib/broadcast';
+import AdminM3u from './AdminM3u';
 
 export default function AdminBroadcast() {
   const [provider, setProvider] = useState<ProviderPublic | null>(null);
@@ -200,6 +201,7 @@ export default function AdminBroadcast() {
           </p>
         </div>
       )}
+      <AdminM3u />
     </div>
   );
 }

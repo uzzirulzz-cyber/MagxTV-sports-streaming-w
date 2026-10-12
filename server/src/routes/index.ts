@@ -6,6 +6,7 @@ import { PROVIDER_STATUS } from '../providers/state';
 import * as repo from '../repo';
 import liveRouter from './live';
 import { adminProvider, broadcast } from './broadcast';
+import m3uAdmin from './m3u';
 import { dbHealth } from '../db';
 import type { Plan, Role } from '../types';
 import { DEMO_STREAMS } from '../../../src/data/streams';
@@ -18,6 +19,8 @@ router.use('/live', liveRouter);
 /* Administrator control of the broadcast provider, and the viewer catalogue. */
 router.use('/admin/provider', adminProvider);
 router.use('/broadcast', broadcast);
+/* M3U playlist importer (fallback to the Xtream API loader). */
+router.use('/admin/m3u', m3uAdmin);
 const wrap = (fn: (req: AuthedRequest, res: import('express').Response) => Promise<unknown>) =>
   (req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) =>
     fn(req as AuthedRequest, res).catch(next);

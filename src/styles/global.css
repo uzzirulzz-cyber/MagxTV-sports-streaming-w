@@ -322,3 +322,10 @@ footer.mx-footer{margin-top:34px;border-top:1px solid var(--line);background:rgb
 .lp-field input{padding:11px 13px;border-radius:var(--r-s);border:1px solid var(--line-strong);background:rgba(5,10,30,.72);color:var(--text);font:inherit;font-size:14px;width:100%}
 .lp-field input:focus{outline:2px solid rgba(25,195,255,.6);outline-offset:1px}
 .ch-card .btn{margin-left:auto;padding:5px 9px;font-size:11px;flex:none}
+
+/* ---------------- free-to-watch tagging ---------------- */
+.badge-free{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:800;letter-spacing:.04em;
+  background:rgba(39,209,127,.16);border:1px solid rgba(39,209,127,.55);color:#b6ffd9;flex:none}
+.badge-sub{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:800;letter-spacing:.04em;
+  background:rgba(255,255,255,.06);border:1px solid var(--line-strong);color:var(--mute);flex:none}
+.ch-card .badge-free,.ch-card .badge-sub{margin-left:auto}

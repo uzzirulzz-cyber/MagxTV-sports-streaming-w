@@ -4,6 +4,7 @@ import { Router } from 'express';
 import { requireAuth, requireRole, type AuthedRequest } from '../auth';
 import { issueBroadcastToken, liveStreamUrl, normaliseHost, playerApi, readToken } from '../live';
 import { clearProvider, getConfigSync, maskSecret, saveProvider } from '../providerConfig';
+import { resolveCatalog } from '../providerRouter';
 
 /* ------------------------------ admin ------------------------------ */
 export const adminProvider = Router();
@@ -127,23 +128,20 @@ export const broadcast = Router();
 
 /* The catalogue the administrator is broadcasting. Signed-in viewers only. */
 broadcast.get('/catalog', requireAuth, async (req, res) => {
-  const c = getConfigSync();
-  if (!c) { res.status(409).json({ error: 'The operator has not configured a live broadcast yet.', configured: false }); return; }
   try {
     const categoryId = String(req.query.category_id ?? '').trim();
-    const params: Record<string, string> = { action: 'get_live_streams' };
-    if (categoryId) params.category_id = categoryId;
-    const [catsRaw, streamsRaw] = await Promise.all([
-      categoryId ? Promise.resolve([]) : playerApi(c, { action: 'get_live_categories' }, 20_000).catch(() => []),
-      playerApi(c, params, 30_000)
-    ]);
-    const categories = (Array.isArray(catsRaw) ? catsRaw : []).map((x: any) => ({ id: String(x.category_id), name: String(x.category_name ?? 'Live') }));
-    const all = Array.isArray(streamsRaw) ? streamsRaw : [];
-    const channels = all.slice(0, 1000).map((s: any) => ({
-      id: String(s.stream_id ?? ''), name: String(s.name ?? 'Live channel'), icon: String(s.stream_icon ?? ''),
-      categoryId: String(s.category_id ?? ''), epgChannelId: s.epg_channel_id ? String(s.epg_channel_id) : null
-    })).filter((s: any) => s.id);
-    res.json({ configured: true, provider: c.host, categories, channels, total: all.length, shown: channels.length });
+    const freeOnly = String(req.query.free ?? '') === '1';
+    const resolved = await resolveCatalog({ categoryId: categoryId || undefined, freeOnly, limit: 1000 });
+    if (resolved.source === 'demo') {
+      res.status(409).json({ error: 'No live provider is configured. Ask the operator to connect an Xtream API panel or import an M3U playlist.', configured: false });
+      return;
+    }
+    res.json({
+      configured: true, source: resolved.source, label: resolved.label, demo: resolved.demo,
+      categories: resolved.categories, channels: resolved.channels,
+      total: resolved.total, shown: resolved.shown, stats: resolved.stats,
+      importedAt: resolved.importedAt, warnings: resolved.warnings, attempts: resolved.attempts
+    });
   } catch (e) { res.status(502).json({ error: e instanceof Error ? e.message : 'Could not load the broadcast catalogue.' }); }
 });
 

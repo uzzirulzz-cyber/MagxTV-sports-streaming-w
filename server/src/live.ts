@@ -76,6 +76,49 @@ export function liveStreamUrl(creds: Creds, id: string, ext: 'm3u8' | 'ts'): str
   return `${creds.host}/live/${encodeURIComponent(creds.username)}/${encodeURIComponent(creds.password)}/${encodeURIComponent(id)}.${ext}`;
 }
 
+/* Hosts a relay request is allowed to be pointed at: the configured Xtream
+   panel, plus every host present in the imported playlist. Memoised against the
+   playlist's import timestamp so a large import does not rebuild it per segment. */
+let pinCache: { stamp: string; hosts: Set<string> } | null = null;
+export async function pinnedHosts(): Promise<Set<string>> {
+  const { readStoredPlaylist } = await import('./providerRouter');
+  const stored = await readStoredPlaylist();
+  const stamp = stored?.importedAt ?? 'none';
+  if (pinCache && pinCache.stamp === stamp) return pinCache.hosts;
+  const hosts = new Set<string>();
+  const p = getConfigSync();
+  if (p?.host) { try { hosts.add(new URL(p.host).host); } catch { /* ignore */ } }
+  for (const c of stored?.channels ?? []) { try { hosts.add(new URL(c.url).host); } catch { /* ignore */ } }
+  pinCache = { stamp, hosts };
+  return hosts;
+}
+
+/* One entry point for both flows: a viewer's own panel session (bare numeric id
+   plus credentials) or a router reference such as "xtream:123" / "m3u:c4f2". */
+export async function resolveUpstream(refOrId: string, creds: Creds | null): Promise<URL | null> {
+  const raw = String(refOrId);
+  if (raw.includes(':')) {
+    const { playbackUrlsFor } = await import('./providerRouter');
+    const urls = await playbackUrlsFor(raw);
+    if (!urls) return null;
+    try { return assertRelayable(urls.hls); } catch { return null; }
+  }
+  if (creds && /^[A-Za-z0-9_.-]+$/.test(raw)) {
+    try { return assertRelayable(liveStreamUrl(creds, raw, 'm3u8')); } catch { return null; }
+  }
+  return null;
+}
+
+/* Resolve a channel reference ("xtream:<id>" or "m3u:<id>") to the URL that
+   must be relayed. Imported playlist entries keep their own absolute URL, and
+   the relay is pinned to that channel's host below. */
+export async function upstreamFor(ref: string): Promise<URL | null> {
+  const { playbackUrlsFor } = await import('./providerRouter');
+  const urls = await playbackUrlsFor(ref);
+  if (!urls) return null;
+  try { return assertRelayable(urls.hls); } catch { return null; }
+}
+
 /* ---- relay guard: block SSRF and anything that is not media ---- */
 const PRIVATE = /^(localhost|127\.|0\.0\.0\.0|::1|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.)/i;
 export function assertRelayable(raw: string): URL {

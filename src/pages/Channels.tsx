@@ -16,6 +16,8 @@ export default function Channels() {
   const [total, setTotal] = useState(0);
   const [provider, setProvider] = useState('');
   const [cat, setCat] = useState('');
+  const [freeOnly, setFreeOnly] = useState(false);
+  const [freeCount, setFreeCount] = useState(0);
   const [q, setQ] = useState('');
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState('');
@@ -28,6 +30,7 @@ export default function Channels() {
     try {
       const r = await broadcastCatalog(categoryId);
       setChannels(r.channels); setCategories(r.categories); setTotal(r.total); setProvider(r.provider ?? '');
+      setFreeCount(r.channels.filter((c) => c.access === 'free').length);
       setCurrent((c) => c ?? r.channels[0] ?? null);
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not load the broadcast.'); }
     finally { setBusy(false); }
@@ -47,8 +50,10 @@ export default function Channels() {
 
   const filtered = useMemo(() => {
     const n = q.trim().toLowerCase();
-    return n ? channels.filter((c) => c.name.toLowerCase().includes(n)) : channels;
-  }, [channels, q]);
+    let list = n ? channels.filter((c) => c.name.toLowerCase().includes(n)) : channels;
+    if (freeOnly) list = list.filter((c) => c.access === 'free');
+    return list;
+  }, [channels, q, freeOnly]);
 
   if (!user) {
     return (
@@ -94,6 +99,12 @@ export default function Channels() {
               <option value="">All categories ({total} channels)</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
+            {freeCount > 0 && (
+              <label className="small" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input type="checkbox" checked={freeOnly} onChange={(e) => setFreeOnly(e.target.checked)} />
+                Free to watch only <span className="badge-free">{freeCount}</span>
+              </label>
+            )}
           </div>
 
           {filtered.length === 0 && <p className="small muted">No channels matched.</p>}
@@ -105,6 +116,7 @@ export default function Channels() {
                   {c.icon ? <img src={c.icon} alt="" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} /> : null}
                 </span>
                 <span className="ch-name">{c.name}</span>
+                {c.access && <span className={c.access === 'free' ? 'badge-free' : 'badge-sub'}>{c.access === 'free' ? 'FREE' : 'SUB'}</span>}
               </button>
             ))}
           </div>

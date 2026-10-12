@@ -207,3 +207,31 @@ POST   /api/broadcast/token           30-minute playback grant (signed in)
 > **Security**: the provider password is stored in plain text so the panel can reconnect
 > unattended. Encrypt it at rest or move it to a secrets manager before production, and keep
 > database access restricted. Credentials entered here are **yours**; the repository ships none.
+
+## 10. M3U playlist importer (fallback to the Xtream API loader)
+
+If no Xtream API panel is configured — or the configured one cannot be reached — the
+provider router can serve channels from an M3U/M3U8 playlist that an operator imports.
+
+* **Admin → Broadcast → M3U playlist importer** (or `POST /api/admin/m3u/import` with `{ "url": "…" }`)
+  hands the URL to the server. The fetch + parse runs as a **queued worker job**, so the request
+  returns `202` immediately and the panel polls `GET /api/admin/m3u/job/:id` for progress.
+* The parsed playlist is persisted through the **storage bucket** abstraction
+  (`buckets/playlists/latest.json`, plus a timestamped copy under `archive/`) and only then does the
+  router start serving it. `GET /api/admin/m3u` returns the provider chain, bucket listing and job depth.
+* `GET /api/admin/m3u/channels?group=&q=&free=1` browses the imported list;
+  `POST /api/admin/m3u/refresh` re-fetches the saved URL; `DELETE /api/admin/m3u` removes the import.
+* Parsed attributes map onto `src/lib/types.ts`: `tvg-id` → `tvgId`/`epgChannelId`, `tvg-logo` → `logo`,
+  `group-title` → `group`, `url-tvg`/`x-tvg-url` → `source.urlTvg`, and the URL extension decides the
+  stream kind (HLS / MPEG-TS / MP4). Groups are matched to a sport via `server/src/sportMap.ts`.
+* Channels whose host is on the open-licence allow-list, or whose name/group says free/public/demo,
+  are tagged **FREE**; everything else is tagged **SUB**. The viewer page `/channels` and the admin
+  browser both show the badge and offer a "free to watch only" filter.
+* Import limits (download size and channel cap) are enforced server-side and displayed in the panel.
+  The full playlist URL is stored **masked**; upstream URLs are never sent to the browser — playback
+  goes through the same-origin relay, which re-checks the host against the pinned provider hosts.
+* Import only playlists you are authorised to use. Nothing is bundled or scraped by this repository.
+
+Reproducible checks: `npx tsx scripts/check_parser.ts` (attribute mapping + stats),
+`npx tsx scripts/check_guard.ts` (relay/SSRF guard) and `python3 scripts/e2e_m3u.py`
+(import job → bucket → router → free tagging) against a running API.

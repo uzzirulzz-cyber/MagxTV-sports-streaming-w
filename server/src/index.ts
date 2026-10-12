@@ -10,6 +10,7 @@ import routes from './routes';
 import { loadCatalog } from './providers';
 import { PROVIDER_STATUS } from './providers/state';
 import { getConfigSync, refresh } from './providerConfig';
+import { initStorage } from './storage';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -29,6 +30,7 @@ async function main() {
   await migrate();
   await initStore();
   await refresh();
+  const bucketDriver = await initStorage();
   const { status } = await loadCatalog();
   Object.assign(PROVIDER_STATUS, status);
   const db = await dbHealth();

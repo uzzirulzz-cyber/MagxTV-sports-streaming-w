@@ -5,7 +5,8 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { Readable } from 'node:stream';
 import {
-  assertRelayable, dropToken, issueToken, liveStreamUrl, normaliseHost, playerApi, readToken, activeTokens, rewritePlaylist
+  assertRelayable, dropToken, issueToken, liveStreamUrl, normaliseHost, playerApi, readToken, activeTokens,
+  rewritePlaylist, resolveUpstream, pinnedHosts, isBroadcastToken
 } from '../live';
 import type { Creds } from '../live';
 
@@ -105,35 +106,40 @@ router.get('/streams', async (req: Request, res: Response) => {
 });
 
 /* ------------------------- playback relay ------------------------- */
-async function relayHls(creds: Creds, id: string, token: string, res: Response): Promise<void> {
-  const url = liveStreamUrl(creds, id, 'm3u8');
+async function relayHls(creds: Creds | null, refOrId: string, token: string, res: Response): Promise<void> {
+  const target = await resolveUpstream(refOrId, creds);
+  if (!target) { res.status(404).json({ error: 'That channel is not available — it is not in the configured provider or the imported playlist.', fallback: 'ts' }); return; }
   let up: globalThis.Response;
-  try { up = await fetch(url, { signal: AbortSignal.timeout(15_000), headers: { 'User-Agent': 'MagxTV/1.0 (+platform)' } }); }
+  try { up = await fetch(target, { signal: AbortSignal.timeout(15_000), headers: { 'User-Agent': 'MagxTV/1.0 (+platform)' } }); }
   catch { res.status(502).json({ error: 'The provider did not answer in time.', fallback: 'ts' }); return; }
   if (!up.ok) { res.status(502).json({ error: `The provider returned HTTP ${up.status} for this channel.`, fallback: 'ts' }); return; }
   const text = await up.text();
   if (!/#EXTM3U/.test(text)) { res.status(409).json({ error: 'This channel is not served as HLS — switching to raw MPEG-TS.', fallback: 'ts' }); return; }
   res.set('Content-Type', 'application/vnd.apple.mpegurl');
   res.set('Cache-Control', 'no-store');
-  res.send(rewritePlaylist(text, up.url || url, token));
+  res.send(rewritePlaylist(text, up.url || target.toString(), token));
 }
 
-router.get('/hls/:id.m3u8', async (req: Request, res: Response) => {
-  const creds = credsFrom(req, res); if (!creds) return;
+router.get('/hls/:ref', async (req: Request, res: Response) => {
+  const creds = credsFrom(req, res);
+  if (!creds && !isBroadcastToken(req.headers['x-live-token'] ?? req.query.t)) { res.status(401).json({ error: 'Not connected to a live provider, or the session expired.' }); return; }
   const token = String(req.headers['x-live-token'] ?? req.query.t ?? '');
-  await relayHls(creds, String(req.params.id), token, res);
+  const ref = String(req.params.ref).replace(/\.m3u8$/i, '');
+  await relayHls(creds, ref, token, res);
 });
 
 /* Raw MPEG-TS relay for channels without an HLS playlist (mpegts.js consumes this). */
-router.get('/ts/:id.ts', async (req: Request, res: Response) => {
-  const creds = credsFrom(req, res); if (!creds) return;
-  const id = String(req.params.id);
+router.get('/ts/:ref', async (req: Request, res: Response) => {
+  const creds = credsFrom(req, res);
+  if (!creds && !isBroadcastToken(req.headers['x-live-token'] ?? req.query.t)) { res.status(401).json({ error: 'Not connected to a live provider, or the session expired.' }); return; }
+  const ref = String(req.params.ref).replace(/\.ts$/i, '');
+  const target = await resolveUpstream(ref, creds);
+  if (!target) { res.status(404).json({ error: 'That channel is not available.' }); return; }
   try {
-    const up = await fetch(liveStreamUrl(creds, id, 'ts'), {
-      signal: AbortSignal.timeout(20_000), headers: { 'User-Agent': 'MagxTV/1.0 (+platform)' }
-    });
+    const up = await fetch(target, { signal: AbortSignal.timeout(20_000), headers: { 'User-Agent': 'MagxTV/1.0 (+platform)' } });
     if (!up.ok || !up.body) { res.status(502).json({ error: `The provider returned HTTP ${up.status} for this channel.` }); return; }
-    res.set('Content-Type', 'video/mp2t');
+    const ct = up.headers.get('content-type');
+    res.set('Content-Type', ct && ct !== 'application/octet-stream' ? ct : 'video/mp2t');
     res.set('Cache-Control', 'no-store');
     Readable.fromWeb(up.body as never).pipe(res);
   } catch (e) {
@@ -143,12 +149,15 @@ router.get('/ts/:id.ts', async (req: Request, res: Response) => {
 
 /* Segments / keys / sidecars referenced by a rewitten playlist. */
 router.get('/seg', async (req: Request, res: Response) => {
-  const creds = credsFrom(req, res); if (!creds) return;
+  const token = String(req.headers['x-live-token'] ?? req.query.t ?? '');
+  const creds = credsFrom(req, res);
+  if (!creds && !isBroadcastToken(token)) { res.status(401).json({ error: 'Not connected to a live provider, or the session expired.' }); return; }
   let target: URL;
   try { target = assertRelayable(Buffer.from(String(req.query.u ?? ''), 'base64url').toString('utf8')); }
   catch (e) { res.status(403).json({ error: e instanceof Error ? e.message : 'Refused.' }); return; }
-  /* Hard stop: a relay must never be pointed at a different panel. */
-  if (target.host !== new URL(creds.host).host) { res.status(403).json({ error: 'Refused: that media belongs to a different host than the connected provider.' }); return; }
+  /* Hard stop: a relay must never be pointed at a host outside this provider. */
+  const allowed = await pinnedHosts();
+  if (!allowed.has(target.host)) { res.status(403).json({ error: 'Refused: that media belongs to a different host than the configured provider.' }); return; }
   try {
     const range = req.headers.range;
     const up = await fetch(target, {

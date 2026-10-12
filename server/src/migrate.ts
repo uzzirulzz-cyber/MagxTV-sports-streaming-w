@@ -37,6 +37,7 @@ CREATE INDEX IF NOT EXISTS notifications_user_idx ON notifications (user_id, cre
 
 CREATE TABLE IF NOT EXISTS provider_config (
   id         INTEGER PRIMARY KEY CHECK (id = 1),
+  kind       TEXT NOT NULL DEFAULT 'xtream' CHECK (kind IN ('xtream','m3u')),
   host       TEXT NOT NULL,
   username   TEXT NOT NULL,
   password   TEXT NOT NULL,
@@ -54,6 +55,8 @@ CREATE TABLE IF NOT EXISTS stream_overrides (
 export async function migrate(): Promise<void> {
   if (!dbEnabled) { console.log('[migrate] DATABASE_URL not set — using the in-memory store instead.'); return; }
   await pool!.query(SCHEMA);
+  /* existing installs: add the provider kind column */
+  await pool!.query("ALTER TABLE provider_config ADD COLUMN IF NOT EXISTS kind TEXT NOT NULL DEFAULT 'xtream'");
   console.log('[migrate] schema ready.');
 
   if (!(await findUserByEmail(SEED_ADMIN.email))) {
