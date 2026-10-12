@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { BRAND } from '../lib/brand';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { isLiveNow, relTime } from '../lib/format';
@@ -21,17 +22,13 @@ const NAV = [
 
 export function BrandMark() {
   return (
-    <svg className="brand-mark" viewBox="0 0 48 40" role="img" aria-label="MagxTV">
-      <defs>
-        <linearGradient id="bm" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#c8ff2e" /><stop offset="1" stopColor="#19c3ff" />
-        </linearGradient>
-      </defs>
-      <rect x="1" y="1" width="46" height="38" rx="10" fill="#0b1746" stroke="#2d8cff" />
-      <path d="M9 30V12l7 9 7-9v18" stroke="url(#bm)" strokeWidth="3.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="35" cy="27" r="6.4" fill="#c8ff2e" />
-      <path d="M30 14h11" stroke="#19c3ff" strokeWidth="2.6" strokeLinecap="round" />
-    </svg>
+    <span className="brand">
+      <img className="brand-img" src={BRAND.mark} alt={BRAND.company} width={34} height={34} />
+      <span className="brand-text">
+        <b>{BRAND.product}</b>
+        <i>{BRAND.company}</i>
+      </span>
+    </span>
   );
 }
 

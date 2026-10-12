@@ -1,0 +1,14 @@
+{
+  "name": "MagxTV — Live Sports",
+  "short_name": "MagxTV",
+  "description": "Live football, cricket, basketball, tennis and motorsport with scores, fixtures and highlights.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050a1e",
+  "theme_color": "#050a1e",
+  "icons": [
+    { "src": "/brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

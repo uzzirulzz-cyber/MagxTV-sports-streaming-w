@@ -1,85 +1,122 @@
-import { useEffect, useState } from 'react';
+/* MagxTV sign-in — premium auth card matching the supplied PlayBeat Digital reference:
+   emblem, centred heading, labelled fields, a full-width blue accent button and a
+   recessed note box. Both roles authenticate here; the dashboard stays role-guarded. */
+import { useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { BrandMark } from '../components/Layout';
+import { BRAND } from '../lib/brand';
+
+const ADMIN_HINT = 'admin@magxtv.example';
+const USER_HINT = 'demo@magxtv.example';
 
 export default function Login() {
   const [params] = useSearchParams();
   const nav = useNavigate();
-  const { signIn, signUp, user, toast } = useApp();
-  const [mode, setMode] = useState<'signin' | 'register'>(params.get('mode') === 'register' ? 'register' : 'signin');
+  const { signIn, signUp } = useApp();
+  const [mode, setMode] = useState<'in' | 'up'>('in');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => { if (user) nav('/profile', { replace: true }); }, [user, nav]);
+  const next = useMemo(
+    () => params.get('next') ?? params.get('redirect') ?? '',
+    [params]
+  );
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault(); setErr('');
-    if (mode === 'register' && password !== confirm) { setErr('Passwords do not match'); return; }
-    if (password.length < 8) { setErr('Password must be at least 8 characters'); return; }
-    setBusy(true);
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !password) { setError('Enter your email address and password.'); return; }
+    setBusy(true); setError('');
     try {
-      if (mode === 'signin') await signIn(email, password);
-      else await signUp(name, email, password);
-      nav('/profile');
-    } catch (e2) { setErr(e2 instanceof Error ? e2.message : 'Something went wrong'); }
-    finally { setBusy(false); }
+      const u = mode === 'in'
+        ? await signIn(email.trim(), password)
+        : await signUp(name.trim() || email.split('@')[0], email.trim(), password);
+      nav(next || (u.role === 'admin' ? '/admin' : '/'), { replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign-in failed. Check your details and try again.');
+    } finally { setBusy(false); }
   };
 
-  const quick = async (mail: string, pw: string) => {
-    setBusy(true); setErr('');
-    try { await signIn(mail, pw); nav('/profile'); }
-    catch (e2) { setErr(e2 instanceof Error ? e2.message : 'Sign-in failed'); }
-    finally { setBusy(false); }
+  const useHint = (which: 'admin' | 'user') => {
+    setMode('in');
+    setEmail(which === 'admin' ? ADMIN_HINT : USER_HINT);
+    setPassword(which === 'admin' ? 'MagxAdmin#2026' : 'MagxDemo#2026');
+    setError('');
   };
 
   return (
-    <div className="wrap sec">
-      <div className="auth-card panel pad">
-        <div className="row" style={{ gap: 10, marginBottom: 14 }}>
-          <BrandMark /><span className="brand" style={{ fontSize: 20 }}>Magx<span style={{ color: 'var(--cyan)' }}>TV</span></span>
-        </div>
-        <h1 style={{ fontSize: 26 }}>{mode === 'signin' ? 'Sign in to watch' : 'Create your account'}</h1>
-        <p className="muted small">{mode === 'signin' ? 'Streams are limited to signed-in viewers so licence limits are respected.' : 'Favourites, reminders and multi-device playback in one account.'}</p>
+    <div className="wrap sec auth-wrap">
+      <div className="auth-card">
+        <span className="auth-sheen" aria-hidden="true" />
 
-        <form className="stack" style={{ gap: 14, marginTop: 18 }} onSubmit={submit}>
-          {mode === 'register' && (
-            <div className="field"><label htmlFor="name">Full name</label>
-              <input id="name" className="input" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" /></div>
+        <div className="auth-mark" aria-hidden="true">
+          <span className="auth-ring" />
+          <img src={BRAND.mark} alt={BRAND.company} width={64} height={64} />
+        </div>
+
+        <h1 className="auth-title">{mode === 'in' ? `Sign in to ${BRAND.product}` : `Join ${BRAND.product}`}</h1>
+        <p className="auth-sub">Restricted — authorised viewers only · {BRAND.company}</p>
+
+        <div className="auth-tabs" role="tablist">
+          <button type="button" role="tab" aria-selected={mode === 'in'}
+                  className={`auth-tab${mode === 'in' ? ' is-active' : ''}`} onClick={() => { setMode('in'); setError(''); }}>Sign in</button>
+          <button type="button" role="tab" aria-selected={mode === 'up'}
+                  className={`auth-tab${mode === 'up' ? ' is-active' : ''}`} onClick={() => { setMode('up'); setError(''); }}>Create account</button>
+        </div>
+
+        {error && <div className="auth-error" role="alert">{error}</div>}
+
+        <form className="auth-form" onSubmit={submit} noValidate>
+          {mode === 'up' && (
+            <div className="auth-field">
+              <label htmlFor="auth-name">Display name</label>
+              <input id="auth-name" name="name" type="text" autoComplete="name" value={name}
+                     onChange={(e) => setName(e.target.value)} placeholder="How you appear to others" />
+            </div>
           )}
-          <div className="field"><label htmlFor="email">Email</label>
-            <input id="email" type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" /></div>
-          <div className="field"><label htmlFor="pw">Password</label>
-            <input id="pw" type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} /></div>
-          {mode === 'register' && (
-            <div className="field"><label htmlFor="cf">Confirm password</label>
-              <input id="cf" type="password" className="input" value={confirm} onChange={(e) => setConfirm(e.target.value)} required autoComplete="new-password" /></div>
-          )}
-          {err && <div className="notice err" role="alert">{err}</div>}
-          <button className="btn btn-lime btn-block btn-lg" type="submit" disabled={busy}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}</button>
+
+          <div className="auth-field">
+            <label htmlFor="auth-email">Email address</label>
+            <input id="auth-email" name="email" type="email" autoComplete="email" required value={email}
+                   onChange={(e) => setEmail(e.target.value)} placeholder={ADMIN_HINT} />
+          </div>
+
+          <div className="auth-field">
+            <label htmlFor="auth-password">Password</label>
+            <input id="auth-password" name="password" type="password" autoComplete={mode === 'in' ? 'current-password' : 'new-password'}
+                   required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+          </div>
+
+          <button className="auth-submit" type="submit" disabled={busy}>
+            {busy ? 'Signing in…' : mode === 'in' ? 'Sign in' : 'Create my account'}
+          </button>
         </form>
 
-        <div className="switch-line" style={{ marginTop: 14 }}>
-          <span>{mode === 'signin' ? 'New to MagxTV?' : 'Already have an account?'}</span>
-          <button className="btn btn-sm btn-ghost" onClick={() => { setMode(mode === 'signin' ? 'register' : 'signin'); setErr(''); }}>
-            {mode === 'signin' ? 'Create account' : 'Sign in'}
-          </button>
+        <div className="auth-note">
+          <b>Sessions and access</b>
+          <p>
+            Sessions use a signed token issued by the MagxTV API (7-day expiry); the dashboard is
+            additionally role-guarded, so a standard account can never reach administration.
+          </p>
+          <p>
+            Provider credentials never reach this browser — it only ever receives short-lived,
+            opaque playback grants.
+          </p>
         </div>
 
-        <div className="notice" style={{ marginTop: 18, display: 'block' }}>
-          <b>Demo accounts</b>
-          <div className="small" style={{ marginTop: 6 }}>These exist only in this demo build (stored locally in your browser). With PostgreSQL configured they live in the database instead.</div>
-          <div className="stack" style={{ gap: 8, marginTop: 10 }}>
-            <button className="btn btn-sm" disabled={busy} onClick={() => void quick('demo@magxtv.example', 'MagxDemo#2026')}>Use viewer account · demo@magxtv.example</button>
-            <button className="btn btn-sm" disabled={busy} onClick={() => void quick('admin@magxtv.example', 'MagxAdmin#2026')}>Use admin account · admin@magxtv.example</button>
+        <div className="auth-demo">
+          <span className="muted small">Demo accounts</span>
+          <div className="auth-demo-row">
+            <button type="button" className="auth-chip" onClick={() => useHint('admin')}>Administrator</button>
+            <button type="button" className="auth-chip" onClick={() => useHint('user')}>Standard viewer</button>
           </div>
         </div>
 
-        <p className="muted tiny" style={{ marginTop: 16 }}>By continuing you confirm you will only watch content you are licensed to stream. <Link to="/credits" style={{ color: 'var(--cyan)' }}>Licensing notes</Link></p>
+        <p className="auth-foot small muted">
+          <Link to="/">Back to the platform</Link> · <Link to="/credits">Content credits</Link>
+        </p>
       </div>
     </div>
   );

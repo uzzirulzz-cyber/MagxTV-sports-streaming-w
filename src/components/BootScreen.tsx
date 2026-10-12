@@ -7,6 +7,7 @@
      ?stage=0-4  freeze the intro at that stage (deterministic screenshots) */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { BRAND } from '../lib/brand';
 import '../styles/boot.css';
 
 const STAGES = [
@@ -158,16 +159,7 @@ export default function BootScreen() {
 
         <div className="mx-boot-mark" aria-hidden="true">
           <span className="mx-boot-ring" />
-          <svg viewBox="0 0 48 48" className="mx-boot-glyph">
-            <defs>
-              <linearGradient id="mxBootGrad" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0" stopColor="#3b82f6" /><stop offset="1" stopColor="#7b3cff" />
-              </linearGradient>
-            </defs>
-            <rect x="1.5" y="1.5" width="45" height="45" rx="13" fill="url(#mxBootGrad)" />
-            <rect x="1.5" y="1.5" width="45" height="45" rx="13" fill="none" stroke="rgba(255,255,255,.22)" />
-            <path d="M20 16.5 34 24l-14 7.5z" fill="#fff" />
-          </svg>
+          <img className="mx-boot-glyph" src={BRAND.mark} alt={BRAND.company} width={64} height={64} />
         </div>
 
         <h1 className="mx-boot-title">MagxTV</h1>
