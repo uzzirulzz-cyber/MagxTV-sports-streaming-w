@@ -10,7 +10,7 @@ interface AppValue {
   signUp: (n: string, e: string, p: string) => Promise<User>;
   signOut: () => void;
   catalog: Catalog; loading: boolean; error: string | null;
-  status: api.ProviderStatus; refresh: () => Promise<void>;
+  status: api.ProviderStatus; statusReady: boolean; refresh: () => Promise<void>;
   favorites: string[]; isFavorite: (id: string) => boolean; toggleFavorite: (id: string) => void;
   notifications: Notification[]; unread: number;
   markAllRead: () => void; markRead: (id: string) => void; notify: (n: Omit<Notification, 'id' | 'at' | 'read'>) => void;
@@ -29,6 +29,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  /* True once the first provider-status attempt has settled (any outcome). */
+  const [statusReady, setStatusReady] = useState(false);
 
   const toast = useCallback((text: string, tone: Toast['tone'] = 'info') => {
     const id = api.uid();
@@ -44,7 +46,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setCatalog(cat); setStatus(st);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load the sports catalogue');
-    } finally { setLoading(false); }
+    } finally { setLoading(false); setStatusReady(true); }
   }, []);
 
   useEffect(() => {
@@ -81,10 +83,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [notifications, persistNotif]);
 
   const value = useMemo<AppValue>(() => ({
-    user, ready, signIn, signUp, signOut, catalog, loading, error, status, refresh,
+    user, ready, signIn, signUp, signOut, catalog, loading, error, status, statusReady, refresh,
     favorites, isFavorite, toggleFavorite, notifications, unread: notifications.filter((n) => !n.read).length,
     markAllRead, markRead, notify, toasts, toast, dismiss
-  }), [user, ready, signIn, signUp, signOut, catalog, loading, error, status, refresh, favorites, isFavorite, toggleFavorite, notifications, markAllRead, markRead, notify, toasts, toast, dismiss]);
+  }), [user, ready, signIn, signUp, signOut, catalog, loading, error, status, statusReady, refresh, favorites, isFavorite, toggleFavorite, notifications, markAllRead, markRead, notify, toasts, toast, dismiss]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

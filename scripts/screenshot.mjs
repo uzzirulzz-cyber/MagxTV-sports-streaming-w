@@ -32,6 +32,7 @@ async function capture(page, route, name, size) {
 }
 
 const desktop = await browser.newContext({ viewport: { width: 1440, height: 960 }, deviceScaleFactor: 1 });
+await desktop.addInitScript(() => { try { sessionStorage.setItem('magx.boot.played', '1'); } catch {} });
 const dpage = await desktop.newPage();
 
 for (const r of ROUTES) {
@@ -56,6 +57,7 @@ await capture(dpage, '/favorites', 'desktop-favorites-signed-in', '1440x960');
 
 /* Mobile */
 const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+await mobile.addInitScript(() => { try { sessionStorage.setItem('magx.boot.played', '1'); } catch {} });
 const mpage = await mobile.newPage();
 await capture(mpage, '/', 'mobile-home', '390x844');
 await capture(mpage, '/live', 'mobile-live', '390x844');

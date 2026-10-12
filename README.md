@@ -235,3 +235,27 @@ provider router can serve channels from an M3U/M3U8 playlist that an operator im
 Reproducible checks: `npx tsx scripts/check_parser.ts` (attribute mapping + stats),
 `npx tsx scripts/check_guard.ts` (relay/SSRF guard) and `python3 scripts/e2e_m3u.py`
 (import job → bucket → router → free tagging) against a running API.
+
+## 11. Boot experience (startup sequence)
+
+`src/components/BootScreen.tsx` is the premium startup sequence: a centred card with an animated
+logo reveal, a staged progress list and a recessed status note.
+
+* **Real signals, not a fake timer.** The five stages advance on actual readiness: webfonts
+  (`document.fonts.ready`, capped at 1.5 s), the provider-status response (`statusReady` from
+  `AppContext`), the catalogue request settling (`loading` → false) and session restore (`ready`).
+  The index is monotonic, so it never regresses or overshoots.
+* **Offline / API failure.** `navigator.onLine` plus the `online`/`offline` events, together with the
+  catalogue error, switch the card into a warning note that offers **Try again** (`refresh()`) and
+  **Continue to MagxTV**. The interface behind keeps working on the labelled demo catalogue.
+* **Reduced motion.** `prefers-reduced-motion: reduce` disables the mark reveal, ring sweep, shimmer
+  and pulse in CSS and collapses the JS settle delays to zero.
+* **No layout shift.** The overlay is a fixed layer rendered alongside the routes, so the app shell is
+  already laid out behind it; on the fade it is simply unmounted. Page scroll is locked only while it
+  is visible.
+* **Once per session.** `sessionStorage['magx.boot.played']` is set on hand-over.
+* **Review flags.** `?boot=1` holds it open, `?boot=0` skips it, `?stage=0-4` freezes a stage
+  (used by `scripts/shot_boot.mjs` for deterministic captures). Esc or **Skip intro** dismisses it.
+
+Capture the sequence with `node scripts/shot_boot.mjs` (desktop, mobile and the aborted-request
+degraded state) once the API is serving the built `dist/`.

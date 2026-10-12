@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
+import BootScreen from './components/BootScreen';
 import Home from './pages/Home';
 import LiveSports from './pages/LiveSports';
 import SportPage from './pages/SportPage';
@@ -18,7 +19,9 @@ import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <BootScreen />
+      <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/live" element={<LiveSports />} />
@@ -40,6 +43,7 @@ export default function App() {
         <Route path="/credits" element={<Credits />} />
         <Route path="*" element={<NotFound />} />
       </Route>
-    </Routes>
+      </Routes>
+    </>
   );
 }
