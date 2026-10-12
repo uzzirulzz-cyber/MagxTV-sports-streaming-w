@@ -32,7 +32,7 @@ async function capture(page, route, name, size) {
 }
 
 const desktop = await browser.newContext({ viewport: { width: 1440, height: 960 }, deviceScaleFactor: 1 });
-await desktop.addInitScript(() => { try { sessionStorage.setItem('magx.boot.played', '1'); } catch {} });
+await desktop.addInitScript(() => { try { sessionStorage.setItem('pbd.boot.played', '1'); } catch {} });
 const dpage = await desktop.newPage();
 
 for (const r of ROUTES) {
@@ -48,8 +48,8 @@ else console.log('! no /watch/ link found on home');
 
 /* Admin — sign in through the real form, then capture the role-gated dashboard */
 await dpage.goto(BASE + '/login', { waitUntil: 'domcontentloaded' });
-await dpage.fill('input[type="email"], input[name="email"]', 'admin@magxtv.example');
-await dpage.fill('input[type="password"], input[name="password"]', 'MagxAdmin#2026');
+await dpage.fill('input[type="email"], input[name="email"]', 'admin@playbeat.digital');
+await dpage.fill('input[type="password"], input[name="password"]', 'PlayBeatAdmin#2026');
 await dpage.click('button[type="submit"], form button');
 await dpage.waitForTimeout(1600);
 await capture(dpage, '/admin', 'desktop-admin', '1440x960');
@@ -57,14 +57,14 @@ await capture(dpage, '/favorites', 'desktop-favorites-signed-in', '1440x960');
 
 /* Mobile */
 const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-await mobile.addInitScript(() => { try { sessionStorage.setItem('magx.boot.played', '1'); } catch {} });
+await mobile.addInitScript(() => { try { sessionStorage.setItem('pbd.boot.played', '1'); } catch {} });
 const mpage = await mobile.newPage();
 await capture(mpage, '/', 'mobile-home', '390x844');
 await capture(mpage, '/live', 'mobile-live', '390x844');
 if (href) await capture(mpage, href, 'mobile-watch-match', '390x844');
 await mpage.goto(BASE + '/login', { waitUntil: 'domcontentloaded' });
-await mpage.fill('input[type="email"], input[name="email"]', 'admin@magxtv.example');
-await mpage.fill('input[type="password"], input[name="password"]', 'MagxAdmin#2026');
+await mpage.fill('input[type="email"], input[name="email"]', 'admin@playbeat.digital');
+await mpage.fill('input[type="password"], input[name="password"]', 'PlayBeatAdmin#2026');
 await mpage.click('button[type="submit"], form button');
 await mpage.waitForTimeout(1600);
 await capture(mpage, '/admin', 'mobile-admin', '390x844');

@@ -29,7 +29,7 @@ async function shot(page, url, name, sel) {
   page.off('pageerror', onErr);
 }
 
-const APP = () => { try { sessionStorage.setItem('magx.boot.played', '1'); } catch {} };
+const APP = () => { try { sessionStorage.setItem('pbd.boot.played', '1'); } catch {} };
 
 const desk = await browser.newContext({ viewport: { width: 1440, height: 960 } });
 const d = await desk.newPage();

@@ -5,7 +5,7 @@
    or the built bundle, and the app ships no provider credentials of its own. */
 import { useEffect, useState } from 'react';
 
-const KEY = 'magx.live.provider';
+const KEY = 'pbd.live.provider';
 
 export interface LiveAccount {
   status: string; username: string; isTrial: boolean; expiresAt: string | null;
@@ -25,7 +25,7 @@ export const readSession = (): LiveSession | null => {
 };
 export const writeSession = (s: LiveSession | null): void => {
   try { if (s) localStorage.setItem(KEY, JSON.stringify(s)); else localStorage.removeItem(KEY); } catch { /* storage off */ }
-  window.dispatchEvent(new Event('magx:live'));
+  window.dispatchEvent(new Event('pbd:live'));
 };
 
 async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -66,9 +66,9 @@ export function useProviderSession() {
   const [session, setSession] = useState<LiveSession | null>(() => readSession());
   useEffect(() => {
     const sync = () => setSession(readSession());
-    window.addEventListener('magx:live', sync);
+    window.addEventListener('pbd:live', sync);
     window.addEventListener('storage', sync);
-    return () => { window.removeEventListener('magx:live', sync); window.removeEventListener('storage', sync); };
+    return () => { window.removeEventListener('pbd:live', sync); window.removeEventListener('storage', sync); };
   }, []);
   return session;
 }

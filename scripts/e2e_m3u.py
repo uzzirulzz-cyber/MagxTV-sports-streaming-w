@@ -31,7 +31,7 @@ s, pre = call("GET", "/api/admin/m3u")   # unauthenticated on purpose
 check("admin m3u route requires auth", s in (401, 403), f"{s} {pre}")
 
 # ---------- 1. login as the seeded admin ----------
-s, r = call("POST", "/api/auth/login", {"email": "admin@magxtv.example", "password": "MagxAdmin#2026"})
+s, r = call("POST", "/api/auth/login", {"email": "admin@playbeat.digital", "password": "PlayBeatAdmin#2026"})
 tok = r.get("token")
 check("admin login", s == 200 and bool(tok), s)
 

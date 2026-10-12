@@ -5,7 +5,7 @@ const RAW = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '';
 export const API_BASE = RAW.replace(/\/+$/, '');
 export const API_CONFIGURED = API_BASE.length > 0;
 
-const K = { users: 'magx.users', session: 'magx.session', fav: 'magx.favorites', notif: 'magx.notifications', overrides: 'magx.admin.matchOverrides' };
+const K = { users: 'pbd.users', session: 'pbd.session', fav: 'pbd.favorites', notif: 'pbd.notifications', overrides: 'pbd.admin.matchOverrides' };
 
 interface StoredUser extends User { secret: string }
 interface Session { token: string; userId: string; at: string }
@@ -13,15 +13,15 @@ interface Session { token: string; userId: string; at: string }
 const read = <T,>(k: string, fb: T): T => { try { const v = localStorage.getItem(k); return v ? (JSON.parse(v) as T) : fb; } catch { return fb; } };
 const write = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage disabled */ } };
 /* Demo-only credential store. Real deployments use the API (bcrypt + JWT). */
-const scramble = (s: string) => btoa(unescape(encodeURIComponent('magx::' + s)));
+const scramble = (s: string) => btoa(unescape(encodeURIComponent('pbd::' + s)));
 export const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 
 function ensureSeed() {
   const users = read<StoredUser[]>(K.users, []);
   if (users.length) return users;
   const seeded: StoredUser[] = [
-    { id: uid(), name: 'MagxTV Admin', email: 'admin@magxtv.example', role: 'admin', plan: 'premium', createdAt: new Date().toISOString(), secret: scramble('MagxAdmin#2026') },
-    { id: uid(), name: 'Sam Supporter', email: 'demo@magxtv.example', role: 'user', plan: 'standard', createdAt: new Date().toISOString(), secret: scramble('MagxDemo#2026') }
+    { id: uid(), name: 'PlayBeat Digital Admin', email: 'admin@playbeat.digital', role: 'admin', plan: 'premium', createdAt: new Date().toISOString(), secret: scramble('PlayBeatAdmin#2026') },
+    { id: uid(), name: 'Sam Supporter', email: 'demo@playbeat.digital', role: 'user', plan: 'standard', createdAt: new Date().toISOString(), secret: scramble('PlayBeatDemo#2026') }
   ];
   write(K.users, seeded);
   return seeded;
@@ -115,7 +115,7 @@ export function seedNotifications(): Notification[] {
   const seeded: Notification[] = [
     { id: uid(), kind: 'goal', title: 'Goal — Northside United', body: 'Northside United 2-1 Riverside FC (63’)', at: new Date(now - 9 * 60000).toISOString(), read: false },
     { id: uid(), kind: 'match', title: 'Kick-off in 15 minutes', body: 'Champions Cup: Real Marisma vs Munich Bavaria', at: new Date(now - 42 * 60000).toISOString(), read: false },
-    { id: uid(), kind: 'system', title: 'Welcome to MagxTV', body: 'Favourite a competition to get kick-off reminders.', at: new Date(now - 5 * 3600000).toISOString(), read: true }
+    { id: uid(), kind: 'system', title: 'Welcome to PlayBeat Digital', body: 'Favourite a competition to get kick-off reminders.', at: new Date(now - 5 * 3600000).toISOString(), read: true }
   ];
   write(K.notif, seeded);
   return seeded;

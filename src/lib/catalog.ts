@@ -143,7 +143,7 @@ const HL_TITLES: [SportId, string, string][] = [
 
 function buildHighlights(now: number, leagues: League[]): Highlight[] {
   return HL_TITLES.map(([sport, title, leagueId], i) => ({
-    id: `hl-${i}`, title, sport, league: leagues.find((l) => l.id === leagueId)?.name || 'MagxTV',
+    id: `hl-${i}`, title, sport, league: leagues.find((l) => l.id === leagueId)?.name || 'PlayBeat Digital',
     duration: `${2 + (i % 9)}:${String(10 + i * 3).slice(0, 2)}`,
     views: `${12 + i * 7}.${i % 9}K`, published: new Date(now - (i + 1) * 5400000).toISOString(),
     thumb: pick(THUMBS[sport], i + 1), streamPath: DEMO_STREAMS[i % DEMO_STREAMS.length].path
@@ -151,7 +151,7 @@ function buildHighlights(now: number, leagues: League[]): Highlight[] {
 }
 
 const NEWS_DEFS: [SportId, string, string][] = [
-  ['football', 'Champions Cup draw sets up a heavyweight last eight', 'MagxTV Desk'],
+  ['football', 'Champions Cup draw sets up a heavyweight last eight', 'PlayBeat Digital Desk'],
   ['cricket', 'Selectors name 15-man squad for the winter tour', 'Wire Report'],
   ['basketball', 'Trade deadline day: three moves that shift the table', 'Courtside'],
   ['motorsport', 'Qualifying washed out — grid set by championship order', 'Pit Lane'],
@@ -163,7 +163,7 @@ const NEWS_DEFS: [SportId, string, string][] = [
 
 function buildNews(now: number): NewsItem[] {
   return NEWS_DEFS.map(([sport, title, source], i) => ({
-    id: `news-${i}`, title, sport, source, summary: 'Demonstration editorial copy bundled with the MagxTV demo catalogue — replace with your newsroom feed in production.',
+    id: `news-${i}`, title, sport, source, summary: 'Demonstration editorial copy bundled with the PlayBeat Digital demo catalogue — replace with your newsroom feed in production.',
     published: new Date(now - (i + 1) * 3600000 * 3).toISOString(), thumb: pick(THUMBS[sport], i + 2)
   }));
 }

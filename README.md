@@ -1,4 +1,4 @@
-# MagxTV — Sports Streaming Platform
+# PlayBeat Digital — Sports Streaming Platform
 
 A full-stack sports media platform: **React + TypeScript + Vite** front end, **Express + PostgreSQL** API,
 JWT/bcrypt authentication with `user` / `admin` roles, a configurable **sports-data provider adapter**,
@@ -31,8 +31,8 @@ Everything stays usable — every payload is flagged `demo: true` and the UI sho
 
 | Role  | Email                   | Password        | Plan     |
 |-------|-------------------------|-----------------|----------|
-| Admin | `admin@magxtv.example`  | `MagxAdmin#2026`| premium  |
-| User  | `demo@magxtv.example`   | `MagxDemo#2026` | standard |
+| Admin | `admin@playbeat.digital`  | `PlayBeatAdmin#2026`| premium  |
+| User  | `demo@playbeat.digital`   | `PlayBeatDemo#2026` | standard |
 
 Both are created by `npm run db:migrate` (PostgreSQL) or `seedMemory()` / `ensureSeed()` (demo mode),
 and are offered as one-click logins on the **Sign in** page. **Change them before any public deployment.**
@@ -44,7 +44,7 @@ and are offered as one-click logins on the **Sign in** page. **Change them befor
 | Variable | Default | Purpose |
 |---|---|---|
 | `PORT` | `8787` | API port |
-| `DATABASE_URL` | *(empty)* | `postgresql://user:pass@host:5432/magxtv`. Empty ⇒ in-memory store |
+| `DATABASE_URL` | *(empty)* | `postgresql://user:pass@host:5432/playbeat-digital`. Empty ⇒ in-memory store |
 | `JWT_SECRET` | dev fallback | **Set a long random value in production** |
 | `JWT_EXPIRES_IN` | `7d` | Token lifetime |
 | `SPORTS_PROVIDER` | `mock` | `mock` \| `xtream` |
@@ -247,13 +247,13 @@ logo reveal, a staged progress list and a recessed status note.
   The index is monotonic, so it never regresses or overshoots.
 * **Offline / API failure.** `navigator.onLine` plus the `online`/`offline` events, together with the
   catalogue error, switch the card into a warning note that offers **Try again** (`refresh()`) and
-  **Continue to MagxTV**. The interface behind keeps working on the labelled demo catalogue.
+  **Continue to PlayBeat Digital**. The interface behind keeps working on the labelled demo catalogue.
 * **Reduced motion.** `prefers-reduced-motion: reduce` disables the mark reveal, ring sweep, shimmer
   and pulse in CSS and collapses the JS settle delays to zero.
 * **No layout shift.** The overlay is a fixed layer rendered alongside the routes, so the app shell is
   already laid out behind it; on the fade it is simply unmounted. Page scroll is locked only while it
   is visible.
-* **Once per session.** `sessionStorage['magx.boot.played']` is set on hand-over.
+* **Once per session.** `sessionStorage['pbd.boot.played']` is set on hand-over.
 * **Review flags.** `?boot=1` holds it open, `?boot=0` skips it, `?stage=0-4` freezes a stage
   (used by `scripts/shot_boot.mjs` for deterministic captures). Esc or **Skip intro** dismisses it.
 

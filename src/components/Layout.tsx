@@ -23,11 +23,8 @@ const NAV = [
 export function BrandMark() {
   return (
     <span className="brand">
-      <img className="brand-img" src={BRAND.mark} alt={BRAND.company} width={34} height={34} />
-      <span className="brand-text">
-        <b>{BRAND.product}</b>
-        <i>{BRAND.company}</i>
-      </span>
+      <img className="brand-img" src={BRAND.mark} alt={BRAND.name} width={34} height={34} />
+      <span className="brand-name">{BRAND.name}</span>
     </span>
   );
 }
@@ -147,8 +144,8 @@ export default function Layout() {
 
       <header className="nav">
         <div className="wrap wrap-wide">
-          <Link to="/" className="brand" aria-label="MagxTV home">
-            <BrandMark /><span>Magx<b>TV</b></span>
+          <Link to="/" className="brand" aria-label="PlayBeat Digital home">
+            <BrandMark />
           </Link>
           <nav className="nav-links" aria-label="Primary">
             {NAV.map((n) => (
@@ -192,8 +189,8 @@ export default function Layout() {
         <div className="wrap wrap-wide">
           <div className="footer-grid">
             <div>
-              <Link to="/" className="brand" style={{ marginBottom: 12 }}><BrandMark /><span>Magx<b>TV</b></span></Link>
-              <p className="small">MagxTV is a demonstration sports streaming front-end. Playback is limited to openly licensed test streams, and every catalogue payload is labelled when it comes from the bundled demo provider.</p>
+              <Link to="/" className="brand" style={{ marginBottom: 12 }}><BrandMark /></Link>
+              <p className="small">PlayBeat Digital is a demonstration sports streaming front-end. Playback is limited to openly licensed test streams, and every catalogue payload is labelled when it comes from the bundled demo provider.</p>
               <div className="row" style={{ gap: 10 }}><span className="age">18+</span><span className="small">Licensed content only</span></div>
             </div>
             <div>
@@ -213,7 +210,7 @@ export default function Layout() {
             </div>
           </div>
           <div className="footer-bottom">
-            <span>© {new Date().getFullYear()} MagxTV. Demo build for evaluation. No league, club or broadcaster marks are used.</span>
+            <span>© {new Date().getFullYear()} PlayBeat Digital</span>
             <span>Photography: {CREDITS.slice(0, 4).map((c, i) => (
               <span key={c.link}>{i > 0 ? ', ' : ''}<a href={c.link} target="_blank" rel="noreferrer noopener">{c.source}</a></span>
             ))} · <Link to="/credits">all credits</Link></span>

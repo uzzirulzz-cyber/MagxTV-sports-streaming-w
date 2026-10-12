@@ -66,7 +66,7 @@ export function activeTokens(): number { return TOKENS.size; }
 export async function playerApi(creds: Creds, params: Record<string, string> = {}, timeoutMs = 15_000): Promise<any> {
   const q = new URLSearchParams({ username: creds.username, password: creds.password, ...params });
   const url = `${creds.host}/player_api.php?${q.toString()}`;
-  const r = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), headers: { 'User-Agent': 'MagxTV/1.0 (+platform)' } });
+  const r = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), headers: { 'User-Agent': 'PlayBeatDigital/1.0 (+platform)' } });
   if (!r.ok) throw new Error(`The provider answered HTTP ${r.status}.`);
   const text = await r.text();
   try { return JSON.parse(text); } catch { throw new Error('The provider did not return JSON — check the host and credentials.'); }

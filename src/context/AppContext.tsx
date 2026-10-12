@@ -61,7 +61,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const u = await api.login(email, password); setUser(u); toast(`Signed in as ${u.name}`, 'good'); return u;
   }, [toast]);
   const signUp = useCallback(async (name: string, email: string, password: string) => {
-    const u = await api.register(name, email, password); setUser(u); toast('Account created — welcome to MagxTV', 'good'); return u;
+    const u = await api.register(name, email, password); setUser(u); toast('Account created — welcome to PlayBeat Digital', 'good'); return u;
   }, [toast]);
   const signOut = useCallback(() => { api.logout(); setUser(null); toast('Signed out'); }, [toast]);
 

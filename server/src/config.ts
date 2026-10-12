@@ -6,7 +6,7 @@ export const config = {
   port: num(process.env.PORT, 8787),
   nodeEnv: process.env.NODE_ENV ?? 'development',
   databaseUrl: process.env.DATABASE_URL ?? '',
-  jwtSecret: process.env.JWT_SECRET ?? 'magxtv-dev-secret-change-me',
+  jwtSecret: process.env.JWT_SECRET ?? 'playbeat-dev-secret-change-me',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
   /* Sports data provider adapter -------------------------------------------- */
   provider: (process.env.SPORTS_PROVIDER ?? 'mock').toLowerCase(),

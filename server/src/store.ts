@@ -17,8 +17,8 @@ export const memory = {
 
 /* Seeded accounts — the same credentials are documented in the README and
    surfaced on the sign-in page as one-click demo logins. */
-export const SEED_ADMIN = { name: 'MagxTV Admin', email: 'admin@magxtv.example', password: 'MagxAdmin#2026' };
-export const SEED_USER = { name: 'Demo Viewer', email: 'demo@magxtv.example', password: 'MagxDemo#2026' };
+export const SEED_ADMIN = { name: 'PlayBeat Digital Admin', email: 'admin@playbeat.digital', password: 'PlayBeatAdmin#2026' };
+export const SEED_USER = { name: 'Demo Viewer', email: 'demo@playbeat.digital', password: 'PlayBeatDemo#2026' };
 
 export async function seedMemory(): Promise<void> {
   if (memory.seeded) return;

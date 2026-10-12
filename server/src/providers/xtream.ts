@@ -20,7 +20,7 @@ async function pull(action: string): Promise<unknown[]> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 12_000);
   try {
-    const res = await fetch(apiUrl(action), { signal: ctrl.signal, headers: { 'User-Agent': 'MagxTV/1.0' } });
+    const res = await fetch(apiUrl(action), { signal: ctrl.signal, headers: { 'User-Agent': 'PlayBeatDigital/1.0' } });
     if (!res.ok) throw new Error(`provider responded ${res.status}`);
     const data = await res.json();
     return Array.isArray(data) ? data : [];

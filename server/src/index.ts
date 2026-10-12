@@ -35,11 +35,11 @@ async function main() {
   Object.assign(PROVIDER_STATUS, status);
   const db = await dbHealth();
   app.listen(config.port, () => {
-    console.log(`\n  MagxTV API  →  http://localhost:${config.port}`);
+    console.log(`\n  PlayBeat Digital API  →  http://localhost:${config.port}`);
     console.log(`  storage     :  ${db.ok ? 'PostgreSQL (' + db.detail + ')' : 'in-memory fallback'}`);
     console.log(`  provider    :  ${status.provider}${status.demo ? ' (DEMO DATA)' : ''}`);
     console.log(`  allowlist   :  ${config.streamAllowlist.join(', ')}\n`);
   });
 }
 
-main().catch((e) => { console.error('MagxTV failed to start:', e); process.exit(1); });
+main().catch((e) => { console.error('PlayBeat Digital failed to start:', e); process.exit(1); });

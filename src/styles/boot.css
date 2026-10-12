@@ -1,10 +1,10 @@
 /* ==========================================================================
-   MagxTV boot experience — the premium startup sequence.
+   PlayBeat Digital boot experience — the premium startup sequence.
    Structure follows the supplied reference: a centred card on a near-black
    navy canvas, a gradient play-glyph mark on top, a bold centred heading with
    a muted subtitle, a blue progress accent, and a recessed info box.
    ========================================================================== */
-html.magx-booting{overflow:hidden}
+html.pbd-booting{overflow:hidden}
 
 .mx-boot{
   position:fixed;inset:0;z-index:300;display:grid;place-items:center;

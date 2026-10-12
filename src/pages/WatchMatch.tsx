@@ -34,7 +34,7 @@ export default function WatchMatch() {
     home: { id: 'hl', name: highlight!.title, short: 'HL', color: '#c8ff2e' },
     away: { id: 'hl2', name: highlight!.league, short: 'TV', color: '#2d8cff' },
     status: 'finished' as const, kickoff: highlight!.published, durationMin: 12, minute: 0, period: 'Replay',
-    homeScore: 0, awayScore: 0, subscores: '', venue: 'MagxTV Studio', channel: 'Highlights',
+    homeScore: 0, awayScore: 0, subscores: '', venue: 'PlayBeat Digital Studio', channel: 'Highlights',
     premium: false, featured: false, streamPath: highlight!.streamPath, thumb: highlight!.thumb, viewers: highlight!.views
   };
 

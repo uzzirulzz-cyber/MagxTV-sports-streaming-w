@@ -51,7 +51,7 @@ export default function Admin() {
   return (
     <div className="wrap wrap-wide sec">
       <SectionHead eyebrow="Operations" title="Admin dashboard"
-        sub="Live catalogue health, role management and stream-source governance for this MagxTV deployment."
+        sub="Live catalogue health, role management and stream-source governance for this PlayBeat Digital deployment."
         action={<span className={`pill ${status.demo ? 'pill-lime' : 'pill-cyan'}`}>{status.demo ? 'DEMO PROVIDER' : `PROVIDER: ${status.provider.toUpperCase()}`}</span>} />
 
       <div className="tabs" style={{ marginBottom: 22 }}>

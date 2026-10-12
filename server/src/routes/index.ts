@@ -28,7 +28,7 @@ const wrap = (fn: (req: AuthedRequest, res: import('express').Response) => Promi
 /* ------------------------------- health ------------------------------- */
 router.get('/health', wrap(async (_req, res) => {
   const db = await dbHealth();
-  res.json({ ok: true, service: 'magxtv-api', uptime: process.uptime(), database: db, provider: PROVIDER_STATUS });
+  res.json({ ok: true, service: 'playbeat-api', uptime: process.uptime(), database: db, provider: PROVIDER_STATUS });
 }));
 
 /* ------------------------------ provider ------------------------------ */
@@ -71,7 +71,7 @@ router.post('/auth/register', wrap(async (req, res) => {
   if (await repo.findUserByEmail(email)) { res.status(409).json({ error: 'An account with that email already exists' }); return; }
   const row = await repo.createUser(name, email, password, 'user', 'standard');
   const user = repo.toApiUser(row);
-  await repo.addNotification(user.id, 'system', 'Welcome to MagxTV', 'Your account is ready. Favourite a competition and we will alert you before kick-off.');
+  await repo.addNotification(user.id, 'system', 'Welcome to PlayBeat Digital', 'Your account is ready. Favourite a competition and we will alert you before kick-off.');
   res.status(201).json({ user, token: signToken(user) });
 }));
 

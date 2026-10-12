@@ -1,6 +1,6 @@
 /* Client for the administrator-configured broadcast provider.
    Every call here hits our own API — the browser never talks to the panel. */
-const SESSION_KEY = 'magx.session';
+const SESSION_KEY = 'pbd.session';
 
 function authToken(): string {
   try {
@@ -18,7 +18,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
       headers: { 'Content-Type': 'application/json', ...(authToken() ? { Authorization: `Bearer ${authToken()}` } : {}), ...(init.headers || {}) }
     });
   } catch {
-    throw new Error('The API server is not reachable. The broadcast panel needs the MagxTV API running (npm start).');
+    throw new Error('The API server is not reachable. The broadcast panel needs the PlayBeat Digital API running (npm start).');
   }
   const text = await r.text();
   let data: unknown = null;

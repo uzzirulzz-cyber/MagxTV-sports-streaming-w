@@ -1,4 +1,4 @@
-/* MagxTV sign-in — premium auth card matching the supplied PlayBeat Digital reference:
+/* PlayBeat Digital sign-in — premium auth card matching the supplied reference:
    emblem, centred heading, labelled fields, a full-width blue accent button and a
    recessed note box. Both roles authenticate here; the dashboard stays role-guarded. */
 import { useMemo, useState, type FormEvent } from 'react';
@@ -6,8 +6,8 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { BRAND } from '../lib/brand';
 
-const ADMIN_HINT = 'admin@magxtv.example';
-const USER_HINT = 'demo@magxtv.example';
+const ADMIN_HINT = 'admin@playbeat.digital';
+const USER_HINT = 'demo@playbeat.digital';
 
 export default function Login() {
   const [params] = useSearchParams();
@@ -42,7 +42,7 @@ export default function Login() {
   const useHint = (which: 'admin' | 'user') => {
     setMode('in');
     setEmail(which === 'admin' ? ADMIN_HINT : USER_HINT);
-    setPassword(which === 'admin' ? 'MagxAdmin#2026' : 'MagxDemo#2026');
+    setPassword(which === 'admin' ? 'PlayBeatAdmin#2026' : 'PlayBeatDemo#2026');
     setError('');
   };
 
@@ -53,11 +53,11 @@ export default function Login() {
 
         <div className="auth-mark" aria-hidden="true">
           <span className="auth-ring" />
-          <img src={BRAND.mark} alt={BRAND.company} width={64} height={64} />
+          <img src={BRAND.mark} alt={BRAND.name} width={64} height={64} />
         </div>
 
-        <h1 className="auth-title">{mode === 'in' ? `Sign in to ${BRAND.product}` : `Join ${BRAND.product}`}</h1>
-        <p className="auth-sub">Restricted — authorised viewers only · {BRAND.company}</p>
+        <h1 className="auth-title">{BRAND.name}</h1>
+        <p className="auth-sub">Restricted — authorised viewers only</p>
 
         <div className="auth-tabs" role="tablist">
           <button type="button" role="tab" aria-selected={mode === 'in'}
@@ -97,7 +97,7 @@ export default function Login() {
         <div className="auth-note">
           <b>Sessions and access</b>
           <p>
-            Sessions use a signed token issued by the MagxTV API (7-day expiry); the dashboard is
+            Sessions use a signed token issued by the PlayBeat Digital API (7-day expiry); the dashboard is
             additionally role-guarded, so a standard account can never reach administration.
           </p>
           <p>

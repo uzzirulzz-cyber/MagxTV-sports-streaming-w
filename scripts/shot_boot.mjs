@@ -52,7 +52,7 @@ await shot(m, BASE + '/?stage=2', 'mobile-boot-progress');
 
 /* A normal visit (intro already played) must land on the app itself. */
 const after = await mob.newPage();
-await after.addInitScript(() => { try { sessionStorage.setItem('magx.boot.played', '1'); } catch {} });
+await after.addInitScript(() => { try { sessionStorage.setItem('pbd.boot.played', '1'); } catch {} });
 await shot(after, BASE + '/live', 'mobile-live-after-boot');
 
 await browser.close();

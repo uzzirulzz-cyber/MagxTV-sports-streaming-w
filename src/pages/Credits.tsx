@@ -7,7 +7,7 @@ export default function Credits() {
   return (
     <div className="wrap sec">
       <SectionHead eyebrow="Legal" title="Licensing &amp; credits"
-        sub="MagxTV ships only openly licensed test streams and Creative-Commons imagery. Replace both with your own licensed assets before going live." />
+        sub="PlayBeat Digital ships only openly licensed test streams and Creative-Commons imagery. Replace both with your own licensed assets before going live." />
 
       <section className="sec" style={{ paddingTop: 0 }}>
         <h2 style={{ fontSize: 22, marginBottom: 12 }}>Stream sources</h2>
@@ -27,7 +27,7 @@ export default function Credits() {
         </div>
         <p className="muted small" style={{ marginTop: 12 }}>
           Playback of any other host is refused by both the web player and the API. Operators configure their own
-          licensed origin through <code>STREAM_ALLOWLIST</code> — MagxTV never proxies or embeds unlicensed streams.
+          licensed origin through <code>STREAM_ALLOWLIST</code> — PlayBeat Digital never proxies or embeds unlicensed streams.
         </p>
       </section>
 

@@ -111,7 +111,7 @@ adminProvider.get('/probe/:id', async (req, res) => {
   const id = String(req.params.id);
   const hls = liveStreamUrl(c, id, 'm3u8');
   try {
-    const up = await fetch(hls, { signal: AbortSignal.timeout(15_000), headers: { 'User-Agent': 'MagxTV/1.0 (+platform)' } });
+    const up = await fetch(hls, { signal: AbortSignal.timeout(15_000), headers: { 'User-Agent': 'PlayBeatDigital/1.0 (+platform)' } });
     const body = up.ok ? await up.text() : '';
     const isHls = /#EXTM3U/.test(body);
     res.json({

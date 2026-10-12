@@ -110,7 +110,7 @@ async function relayHls(creds: Creds | null, refOrId: string, token: string, res
   const target = await resolveUpstream(refOrId, creds);
   if (!target) { res.status(404).json({ error: 'That channel is not available — it is not in the configured provider or the imported playlist.', fallback: 'ts' }); return; }
   let up: globalThis.Response;
-  try { up = await fetch(target, { signal: AbortSignal.timeout(15_000), headers: { 'User-Agent': 'MagxTV/1.0 (+platform)' } }); }
+  try { up = await fetch(target, { signal: AbortSignal.timeout(15_000), headers: { 'User-Agent': 'PlayBeatDigital/1.0 (+platform)' } }); }
   catch { res.status(502).json({ error: 'The provider did not answer in time.', fallback: 'ts' }); return; }
   if (!up.ok) { res.status(502).json({ error: `The provider returned HTTP ${up.status} for this channel.`, fallback: 'ts' }); return; }
   const text = await up.text();
@@ -136,7 +136,7 @@ router.get('/ts/:ref', async (req: Request, res: Response) => {
   const target = await resolveUpstream(ref, creds);
   if (!target) { res.status(404).json({ error: 'That channel is not available.' }); return; }
   try {
-    const up = await fetch(target, { signal: AbortSignal.timeout(20_000), headers: { 'User-Agent': 'MagxTV/1.0 (+platform)' } });
+    const up = await fetch(target, { signal: AbortSignal.timeout(20_000), headers: { 'User-Agent': 'PlayBeatDigital/1.0 (+platform)' } });
     if (!up.ok || !up.body) { res.status(502).json({ error: `The provider returned HTTP ${up.status} for this channel.` }); return; }
     const ct = up.headers.get('content-type');
     res.set('Content-Type', ct && ct !== 'application/octet-stream' ? ct : 'video/mp2t');
@@ -162,7 +162,7 @@ router.get('/seg', async (req: Request, res: Response) => {
     const range = req.headers.range;
     const up = await fetch(target, {
       signal: AbortSignal.timeout(20_000),
-      headers: range ? { Range: String(range), 'User-Agent': 'MagxTV/1.0 (+platform)' } : { 'User-Agent': 'MagxTV/1.0 (+platform)' }
+      headers: range ? { Range: String(range), 'User-Agent': 'PlayBeatDigital/1.0 (+platform)' } : { 'User-Agent': 'PlayBeatDigital/1.0 (+platform)' }
     });
     if (!up.ok || !up.body) { res.status(502).json({ error: `Upstream segment failed (HTTP ${up.status}).` }); return; }
     const ct = up.headers.get('content-type');

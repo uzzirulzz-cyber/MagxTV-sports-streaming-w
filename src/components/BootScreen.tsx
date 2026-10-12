@@ -1,4 +1,4 @@
-/* MagxTV boot experience — the premium startup sequence, shown once per session.
+/* PlayBeat Digital boot experience — the premium startup sequence, shown once per session.
    Every stage is driven by a REAL readiness signal rather than a fixed timer:
      webfonts → provider status → sports catalogue → session & watchlist.
    Query flags (design review / capture only):
@@ -11,7 +11,7 @@ import { BRAND } from '../lib/brand';
 import '../styles/boot.css';
 
 const STAGES = [
-  { key: 'core', label: 'Starting MagxTV', detail: 'Loading the interface and webfonts' },
+  { key: 'core', label: 'Starting PlayBeat Digital', detail: 'Loading the interface and webfonts' },
   { key: 'provider', label: 'Checking the stream provider', detail: 'Reaching the configured sports data source' },
   { key: 'catalog', label: 'Loading the sports catalogue', detail: 'Fixtures, live scores and highlights' },
   { key: 'you', label: 'Restoring your session', detail: 'Account, favourites and notifications' },
@@ -23,7 +23,7 @@ const MIN_SHOW_MS = 1100;   /* never flash the intro away */
 const SETTLE_MS = 650;      /* beat between 100% and the fade-out */
 const HARD_CAP_MS = 9000;   /* never hold a viewer hostage to a hung request */
 const FADE_MS = 620;
-const PLAYED_KEY = 'magx.boot.played';
+const PLAYED_KEY = 'pbd.boot.played';
 
 type StageState = 'pending' | 'active' | 'done';
 interface Flags { skip: boolean; hold: boolean; frozen: number | null }
@@ -131,8 +131,8 @@ export default function BootScreen() {
   useEffect(() => {
     if (!show) return;
     const root = document.documentElement;
-    root.classList.add('magx-booting');
-    return () => root.classList.remove('magx-booting');
+    root.classList.add('pbd-booting');
+    return () => root.classList.remove('pbd-booting');
   }, [show]);
 
   useEffect(() => {
@@ -159,11 +159,11 @@ export default function BootScreen() {
 
         <div className="mx-boot-mark" aria-hidden="true">
           <span className="mx-boot-ring" />
-          <img className="mx-boot-glyph" src={BRAND.mark} alt={BRAND.company} width={64} height={64} />
+          <img className="mx-boot-glyph" src={BRAND.mark} alt={BRAND.name} width={64} height={64} />
         </div>
 
-        <h1 className="mx-boot-title">MagxTV</h1>
-        <p className="mx-boot-sub">{finished ? 'Ready to watch' : 'Live sports, prepared for you'}</p>
+        <h1 className="mx-boot-title">PlayBeat Digital</h1>
+        <p className="mx-boot-sub">{finished ? 'Ready' : 'Starting up'}</p>
 
         <div className="mx-boot-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100}
              aria-valuenow={pct} aria-label="Startup progress">
@@ -190,7 +190,7 @@ export default function BootScreen() {
           <div className="mx-boot-note is-warn">
             <b>{offline ? 'You appear to be offline' : 'The streaming API did not answer'}</b>
             <p>{offline
-              ? 'MagxTV keeps your favourites and saved playlist on this device and reconnects automatically the moment the connection returns.'
+              ? 'PlayBeat Digital keeps your favourites and saved playlist on this device and reconnects automatically the moment the connection returns.'
               : (error ?? 'The sports data API could not be reached.')}</p>
             <p>In the meantime the clearly-labelled demo catalogue is used, so no part of the interface breaks.</p>
             <div className="mx-boot-actions">
@@ -198,7 +198,7 @@ export default function BootScreen() {
                 {retrying ? 'Retrying…' : 'Try again'}
               </button>
               <button className="mx-boot-btn is-ghost" type="button" onClick={close}>
-                Continue to MagxTV
+                Continue to PlayBeat Digital
               </button>
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function BootScreen() {
 
         {flags.hold ? (
           <button className="mx-boot-btn is-wide" type="button" onClick={close} disabled={!finished && !degraded}>
-            {finished ? 'Continue to MagxTV' : 'Loading…'}
+            {finished ? 'Continue to PlayBeat Digital' : 'Loading…'}
           </button>
         ) : !finished && (
           <button className="mx-boot-skip" type="button" onClick={close}>Skip intro</button>

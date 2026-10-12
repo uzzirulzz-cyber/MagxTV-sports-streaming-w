@@ -15,7 +15,7 @@ export interface ImportResult {
 export const MAX_PLAYLIST_BYTES = 25 * 1024 * 1024;
 
 /** Public user agents get blocked by some hosts, so state who we are. */
-const UA = 'MagxTV/1.0 (+m3u-importer)';
+const UA = 'PlayBeatDigital/1.0 (+m3u-importer)';
 
 export function startImport(url: string, allowlist: string[]) {
   const clean = String(url).trim();
